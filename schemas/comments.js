@@ -7,11 +7,11 @@ const commentsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    user: {
+    userId: {
       type: String,
       required: true,
     },
-    password: {
+    nickname: {
       type: String,
       required: true,
     },
@@ -19,12 +19,11 @@ const commentsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
   },
+  { timestamps: true },
   { versionKey: false }
 );
 
 module.exports = mongoose.model("Comments", commentsSchema); // 컬렉션명 : Comments
+
+// userId, nickname, updatedAt / password 제거 
