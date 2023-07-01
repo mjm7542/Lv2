@@ -26,4 +26,4 @@ const commentsSchema = new mongoose.Schema(
 
 module.exports = mongoose.model("Comments", commentsSchema); // 컬렉션명 : Comments
 
-// userId, nickname, updatedAt / password 제거 
+// userId, nickname, updatedAt / password 제거

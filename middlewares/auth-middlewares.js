@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../schemas/user");
+const User = require("../schemas/users");
 
 // 사용자 인증 미들웨어
 module.exports = async (req, res, next) => {

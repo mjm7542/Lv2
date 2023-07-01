@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Posts = require("../schemas/posts");
+const authMiddleware = require("../middlewares/auth-middlewares.js");
 
 //게시글 전체 조회
 router.get("/", async (req, res) => {
@@ -84,10 +85,7 @@ router.put("/:_postId", async (req, res) => {
 
     const db_password = posts.password;
     if (posts && db_password === password) {
-      await Posts.updateOne(
-        { _id: _postId },
-        { $set: { title, content } }
-      );
+      await Posts.updateOne({ _id: _postId }, { $set: { title, content } });
       return res.status(204).json({ message: "게시글을 수정하였습니다" }); // 상태코드 수정 201 -> 204
     } else if (!posts.length) {
       return res.status(404).json({ message: "게시글 조회에 실패하였습니다." });
