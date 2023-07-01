@@ -3,10 +3,6 @@ const mongoose = require("mongoose");
 
 const commentsSchema = new mongoose.Schema(
   {
-    _postId: {
-      type: String,
-      required: true,
-    },
     userId: {
       type: String,
       required: true,
