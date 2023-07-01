@@ -5,7 +5,7 @@ const router = express.Router();
 const User = require("../schemas/users");
 
 // 로그인 API
-router.post("/login", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { nickname, password } = req.body;
     const user = await User.findOne({ nickname });
@@ -19,12 +19,12 @@ router.post("/login", async (req, res) => {
 
     // JWT 생성
     const token = jwt.sign(
-      { userId: user.userId },
+      { userId: user.userId, nickname: user.nickname },
       "customized-secret-key"
       // 시크릿키는 내일 조정
     );
 
-    res.cookie("authorization", "Bearer " + token); //
+    res.cookie("authorization", "Bearer " + token);
     res.status(200).json({ token });
   } catch (error) {
     res.status(400).json({
