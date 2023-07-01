@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Comments = require("../schemas/comments");
+const authMiddleware = require("../middlewares/auth-middlewares");
+const Posts = require("../schemas/posts");
 
 //? 댓글 조회
 router.get("/:_postId/comments", async (req, res) => {
@@ -9,9 +11,11 @@ router.get("/:_postId/comments", async (req, res) => {
     const new_comments = comments.map((comment) => {
       return {
         commentId: comment["_id"], //* comment의 기본키(_id)를 CommentId에 담기 위한 작업
-        user: comment["user"],
-        content: comment["content"],
+        userId: comment["userId"],
+        nickname: comment["nickname"],
+        comment: comment["comment"],
         createdAt: comment["createdAt"],
+        updatedAt: comment["updatedAt"],
       };
     });
     if (Object.keys(req.params).length < 1 || new_comments.length === 0)
@@ -25,23 +29,30 @@ router.get("/:_postId/comments", async (req, res) => {
 });
 
 //? 댓글 생성
-router.post("/:_postId/comments", async (req, res) => {
+router.post("/:_postId/comments", authMiddleware, async (req, res) => {
   try {
     const { _postId } = req.params;
-    const { user, password, content } = req.body; // POST로 넘어온다. body 객체 참조할 것.
-
-    if (Object.keys(req.params).length < 1 || !user || !password)
+    const { userId, nickname } = res.locals.user;
+    //! 일단 try catch로 처리 나중에 더 나은 방법고민 
+    try {
+      const post = await Posts.findById(_postId).exec()
+    } catch (err) {
       return res
         .status(400)
+        .json({ errorMessage: "게시글이 존재하지 않습니다." }); 
+    }
+    const { comment } = req.body; // POST로 넘어온다. body 객체 참조할 것.
+    if (!comment)
+      return res
+        .status(412)
         .json({ message: "데이터 형식이 올바르지 않습니다" });
 
-    if (!content)
-      return res.status(400).json({ message: "댓글 내용을 입력해주세요" });
-
-    await Comments.create({ _postId, user, password, content });
-    return res.status(200).json({ message: "댓글을 생성하였습니다" });
+    await Comments.create({ _postId, userId, nickname, comment });
+    return res.status(201).json({ message: "댓글을 작성하였습니다." });
   } catch (err) {
-    console.error(err);
+    return res
+      .status(400)
+      .json({ errorMessage: "댓글 작성에 실패하였습니다." });
   }
 });
 

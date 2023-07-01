@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../schemas/user");
+const User = require("../schemas/users");
 
 // 회원가입 API
 router.post("/", async (req, res) => {
