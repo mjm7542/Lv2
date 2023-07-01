@@ -5,7 +5,7 @@ dotenv.config();
 const connect = () => {
   mongoose
     .connect(process.env.MONGOOSE, {
-      dbName: "Lv1",
+      dbName: "Lv2",
     })
     .catch((err) => console.error(err));
 };

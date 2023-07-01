@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/since1630/hanghae-Lv1#readme",
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
