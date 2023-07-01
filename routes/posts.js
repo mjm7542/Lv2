@@ -6,13 +6,14 @@ const authMiddleware = require("../middlewares/auth-middlewares.js");
 //게시글 전체 조회
 router.get("/", async (req, res) => {
   try {
-    const posts = await Posts.find({}).sort({ updatedAt: -1 });
+    const posts = await Posts.find({}).sort({ updatedAt: -1 }).exec();
     const new_posts = posts.map((post) => {
       return {
         postId: post["_id"],
         userId: post["userId"],
         nickname: post["nickname"],
         title: post["title"],
+        content: post["content"],
         createdAt: post["createdAt"],
         updatedAt: post["updatedAt"],
       };
@@ -31,13 +32,14 @@ router.get("/", async (req, res) => {
 router.get("/:_postId", async (req, res) => {
   try {
     const { _postId } = req.params;
-    const posts = await Posts.findOne({ _id: _postId });
+    const posts = await Posts.findOne({ _id: _postId }).exec();
 
     const new_posts = {
       postId: posts["_id"],
       userId: posts["userId"],
       nickname: posts["nickname"],
       title: posts["title"],
+      content: posts["content"],
       createdAt: posts["createdAt"],
       updatedAt: posts["updatedAt"],
     };
@@ -116,7 +118,7 @@ router.put("/:_postId", authMiddleware, async (req, res) => {
     }
 
     //* 현재 param에 해당하는 게시글 가져오기
-    const posts = await Posts.findOne({ _id: _postId });
+    const posts = await Posts.findOne({ _id: _postId }).exec();
 
     //! 403 게시글을 수정할 권한이 존재하지 않는 경우
     if (userId !== posts.userId) {
@@ -126,7 +128,10 @@ router.put("/:_postId", authMiddleware, async (req, res) => {
         .json({ errorMessage: "게시글 수정의 권한이 존재하지 않습니다." });
     }
 
-    await Posts.updateOne({ _id: _postId }, { $set: { title, content } });
+    await Posts.updateOne(
+      { _id: _postId },
+      { $set: { title, content } }
+    ).exec();
 
     //! 401 게시글 수정이 실패한 경우
     if (!posts) {
@@ -154,7 +159,7 @@ router.delete("/:_postId", authMiddleware, async (req, res) => {
         .status(400)
         .json({ message: "데이터 형식이 올바르지 않습니다." });
 
-    const posts = await Posts.findOne({ _id: _postId });
+    const posts = await Posts.findOne({ _id: _postId }).exec();
 
     //! 404 게시글이 존재하지 않는 경우
     if (!posts.length) {
@@ -173,7 +178,7 @@ router.delete("/:_postId", authMiddleware, async (req, res) => {
     await Posts.deleteOne({ _id: _postId });
 
     //! 게시글 삭제에 실패한 경우
-    const checkPostDelete = await Posts.findOne({ _id: _postId });
+    const checkPostDelete = await Posts.findOne({ _id: _postId }).exec();
     if (checkPostDelete) {
       return res
         .status(401)

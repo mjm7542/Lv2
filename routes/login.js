@@ -5,7 +5,7 @@ const router = express.Router();
 const User = require("../schemas/users");
 
 // 로그인 API
-router.post("/login", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { nickname, password } = req.body;
     const user = await User.findOne({ nickname });

@@ -65,10 +65,7 @@ router.put("/:_postId/comments/:_commentId", async (req, res) => {
         .status(404)
         .json({ message: "{ message: '댓글 조회에 실패하였습니다. }" });
     }
-    await Comments.updateOne(
-      { _id: _commentId },
-      { $set: { content } }
-    );
+    await Comments.updateOne({ _id: _commentId }, { $set: { content } });
     return res.status(204).json({ message: "댓글을 수정하였습니다" }); // 상태코드 수정 201 -> 204
   } catch (err) {
     console.error(err);
