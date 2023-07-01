@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 
 const postsSchema = new mongoose.Schema(
   {
-    user: {
+    userId: {
       type: String,
       required: true,
     },
-    password: {
+    nickname: {
       type: String,
       required: true,
     },
@@ -18,11 +18,8 @@ const postsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
   },
+  { timestamps: true },
   { versionKey: false }
 );
 
