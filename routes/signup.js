@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
 
     //? 체크 완료
     //  패스워드에 닉네임이 포함되어 있는지 여부
-    if (nickname.includes(password)) {
+    if (password.includes(nickname)) {
       return res
         .status(412)
         .json({ errorMessage: "패스워드에 닉네임이 포함되어 있습니다." });

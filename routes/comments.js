@@ -26,7 +26,6 @@ router.get("/:_postId/comments", async (req, res) => {
         updatedAt: comment["updatedAt"],
       };
     });
-
     res.status(200).json({ comments: new_comments });
   } catch (err) {
     console.error(err);
@@ -41,9 +40,9 @@ router.post("/:_postId/comments", authMiddleware, async (req, res) => {
   try {
     const { _postId } = req.params;
     const { userId, nickname } = res.locals.user;
-    //! body에 문제가 있을 때
     const { comment } = req.body; // POST로 넘어온다. body 객체 참조할 것.
-    if (!comment)
+    //! body에 문제가 있을 때
+    if (Object.keys(req.body).length === 0)
       return res
         .status(412)
         .json({ message: "데이터 형식이 올바르지 않습니다" });
@@ -74,10 +73,10 @@ router.put(
       const { comment } = req.body;
       const { nickname } = res.locals.user;
       //! body에 문제가 있을 때
-      if (!comment) {
+      if (Object.keys(req.body).length === 0) {
         return res
           .status(412)
-          .json({ errorMessage: "댓글 작성에 실패하였습니다." });
+          .json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
       }
       //! 게시물 못 찾을 때 에러(24자리 고정)
       const posts = await Posts.findById({ _id: _postId }).exec();
@@ -99,11 +98,22 @@ router.put(
           .status(403)
           .json({ errorMessage: "댓글의 수정 권한이 존재하지 않습니다." });
       }
-      await Comments.updateOne({ _id: _commentId }, { $set: { comment } });
-      return res.status(204).json({ message: "댓글을 수정하였습니다" }); // 상태코드 수정 201 -> 204
+
+      //! acknowledged 정상적 처리 확인
+      const updateCommentsStatus = await Comments.updateOne(
+        { _id: _commentId },
+        { $set: { comment } }
+      );
+      if (updateCommentsStatus.acknowledged) {
+        return res.status(200).json({ message: "댓글을 수정하였습니다" });
+      } else {
+        return res.status(400).json({
+          errorMessage: "댓글 삭제가 정상적으로 처리되지 않았습니다.",
+        });
+      }
     } catch (err) {
       console.error(err);
-      res.status(204).json({ errorMessage: "댓글 수정에 실패하였습니다." });
+      res.status(400).json({ errorMessage: "댓글 수정에 실패하였습니다." });
     }
   }
 );
@@ -116,9 +126,9 @@ router.delete(
     try {
       const { _postId, _commentId } = req.params;
       const { nickname } = res.locals.user;
+
       //! 게시물 못 찾을 때 에러(24자리 고정)
       const posts = await Posts.findById({ _id: _postId }).exec();
-      console.log("posts:", posts);
       if (!posts) {
         return res
           .status(404)
@@ -126,7 +136,7 @@ router.delete(
       }
       //! 댓글을 못 찾을 때 에러(24자리 고정)
       const [comments] = await Comments.find({ _id: _commentId }).exec();
-      console.log("comments:", comments);
+
       if (!comments) {
         return res
           .status(404)
@@ -139,15 +149,15 @@ router.delete(
           .json({ errorMessage: "댓글의 삭제 권한이 존재하지 않습니다." });
       }
       //! acknowledged 정상적 처리 확인
-      const deleteComments = await Comments.deleteOne({ _id: _commentId });
-      if (deleteComments.acknowledged) {
+      const deleteCommentsStatus = await Comments.deleteOne({
+        _id: _commentId,
+      });
+      if (deleteCommentsStatus.acknowledged) {
         return res.status(200).json({ message: "댓글을 삭제하였습니다" });
       } else {
-        return res
-          .status(400)
-          .json({
-            errorMessage: "댓글 삭제가 정상적으로 처리되지 않았습니다.",
-          });
+        return res.status(400).json({
+          errorMessage: "댓글 삭제가 정상적으로 처리되지 않았습니다.",
+        });
       }
     } catch (err) {
       console.error(err);

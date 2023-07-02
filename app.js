@@ -9,7 +9,7 @@ connect();
 const dotenv = require("dotenv");
 dotenv.config();
 
-app.use(express.json()); // POST body 안에 있는 데이터를 사용하기 위해 프로젝트 파일 전역에 json() 적용
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use("/", indexRouter);
